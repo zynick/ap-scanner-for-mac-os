@@ -7,28 +7,26 @@ var liner    = require('./liner');
 
 program
   .version('1.0.0')
-  .option('-f, --file [name]'     , 'input file'      , 'ap.txt')
-  .option('-h, --mongoHost [ip]'  , 'mongodb host'    , 'localhost')
-  .option('-p, --mongoPort [port]', 'mongodb port'    , 27017)
-  .option('-d, --database  [name]', 'mongodb database', 'tidedb')
+  .option('-f, --file [ap.txt]'        , 'input file'      , 'ap.txt')
+  .option('-l, --location  [location]' , 'ap location')
+  .option('-h, --mongoHost [localhost]', 'mongodb host'    , 'localhost')
+  .option('-p, --mongoPort [27017]'    , 'mongodb port'    , 27017)
+  .option('-d, --database  [tidedb]'   , 'mongodb database', 'tidedb')
   .parse(process.argv);
 
 
-// 1. Initialise Mongoose Schema
+// 1. Some input verification
 
-fs.readdirSync('./models/')
-  .forEach(function (file) {
-    if (file.indexOf('.js') >= 0) {
-      require('./models/' + file);
-    }
-  });
-
-
-// 2. Parse APs from File
+if (!program.location) {
+  return console.log('please specify location (using -l)');
+}
 
 if (!fs.existsSync('./' + program.file)) {
   return console.log('file not found: ' + program.file);
 }
+
+
+// 2. Parse APs from File
 
 var line,
     mac,
@@ -45,7 +43,7 @@ liner.on('readable', function () {
   if (!/\w\w(:\w\w){5}/.test(mac)) { return; }
 
   hashmap[mac] = {
-    loc  : '',
+    loc  : program.location,
     ssid : line.substr(0, 32).trim(),
     mac  : mac,
     rssi : line.substr(51, 4).trim(),
@@ -70,6 +68,7 @@ liner.on('end', function () {
   db.on('error', console.error.bind(console, 'connection error:'));
   db.once('open', function() {
 
+    require('./models/ap.js');
     var AP   = mongoose.model('AP'),
         bulk = AP.collection.initializeUnorderedBulkOp();
 
