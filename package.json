@@ -1,0 +1,16 @@
+{
+  "name": "scanner",
+  "version": "1.0.0",
+  "description": "AP scanner for MAC OS",
+  "main": "app.js",
+  "dependencies": {
+    "commander": "^2.5.0",
+    "mongoose": "^4.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:tideanalytics/scanner.git"
+  },
+  "author": "TEAM TIDE",
+  "license": "BSD-2-Clause"
+}
